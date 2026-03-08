@@ -4,7 +4,11 @@ A CLI tool that turns tweets from a Twitter archive into standalone, self-contai
 
 Images, GIFs, and videos are base64-encoded directly into the HTML, so each file works completely offline. Works directly with the archive zip file — no need to extract first.
 
-## Install
+## Web version
+
+Use tweetembed directly in your browser at **[duggan.github.io/tweetembed](https://duggan.github.io/tweetembed/)** — no install required. Drop your archive zip, enter a tweet ID, and render it in-page. Works offline; nothing is uploaded.
+
+## CLI Install
 
 ### Homebrew
 
