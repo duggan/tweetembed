@@ -22,5 +22,16 @@ archives:
       - goos: windows
         format: zip
 
+brews:
+  - repository:
+      owner: duggan
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/duggan/tweetembed
+    description: Turn tweets from a Twitter archive into standalone embeddable HTML
+    license: MIT
+    install: |
+      bin.install "tweetembed"
+
 changelog:
   sort: asc

@@ -6,6 +6,12 @@ Images, GIFs, and videos are base64-encoded directly into the HTML, so each file
 
 ## Install
 
+### Homebrew
+
+```sh
+brew install duggan/tap/tweetembed
+```
+
 ### From a release
 
 Download the latest binary for your platform from the [releases page](https://github.com/duggan/tweetembed/releases).
