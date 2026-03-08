@@ -8,5 +8,9 @@ twitter-*.zip
 # macOS
 .DS_Store
 
-# Test output
-*.html
+# Test output (root-level HTML from CLI)
+/*.html
+
+# Web app build artifacts
+web/node_modules/
+web/dist/

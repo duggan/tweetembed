@@ -1,0 +1,21 @@
+{
+  "name": "tweetembed-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --outfile=dist/app.js --format=esm --target=es2020",
+    "build:min": "esbuild src/main.ts --bundle --outfile=dist/app.js --format=esm --target=es2020 --minify",
+    "dev": "esbuild src/main.ts --bundle --outfile=dist/app.js --format=esm --target=es2020 --watch --servedir=.",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}
