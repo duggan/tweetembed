@@ -1,0 +1,12 @@
+# Built binary
+tweetembed
+
+# Twitter archive data (keep out of repo)
+twitter-*/
+twitter-*.zip
+
+# macOS
+.DS_Store
+
+# Test output
+*.html
