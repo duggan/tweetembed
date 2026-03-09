@@ -179,6 +179,76 @@
     background: rgba(29, 155, 240, 0.1);
   }
 
+  #search-results {
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #cfd9de;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  body.dark #search-results {
+    border-color: #38444d;
+  }
+
+  #search-results-count {
+    font-size: 13px;
+    color: #536471;
+    padding: 8px 14px;
+    border-bottom: 1px solid #cfd9de;
+  }
+
+  body.dark #search-results-count {
+    color: #8b98a5;
+    border-bottom-color: #38444d;
+  }
+
+  .search-result {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #eff3f4;
+    transition: background 0.1s;
+  }
+
+  body.dark .search-result {
+    border-bottom-color: #2f3336;
+  }
+
+  .search-result:last-child {
+    border-bottom: none;
+  }
+
+  .search-result:hover {
+    background: rgba(29, 155, 240, 0.06);
+  }
+
+  .search-result.active {
+    border-left: 3px solid #1d9bf0;
+    padding-left: 11px;
+    background: rgba(29, 155, 240, 0.04);
+  }
+
+  .search-result-text {
+    display: block;
+    font-size: 14px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .search-result-meta {
+    display: block;
+    font-size: 12px;
+    color: #536471;
+    margin-top: 2px;
+  }
+
+  body.dark .search-result-meta {
+    color: #8b98a5;
+  }
+
   #tweet-container {
     display: flex;
     justify-content: center;
@@ -214,9 +284,10 @@
 <div id="loaded-section">
   <p id="account-info"></p>
   <div class="input-row">
-    <input type="text" id="tweet-input" placeholder="Tweet ID or URL">
+    <input type="text" id="tweet-input" placeholder="Search tweets, or enter a tweet ID/URL">
     <button id="render-btn">Render</button>
   </div>
+  <div id="search-results"></div>
   <div class="controls">
     <button id="theme-toggle">Dark</button>
     <button id="logo-toggle">X Logo</button>
