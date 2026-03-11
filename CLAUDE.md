@@ -22,12 +22,22 @@ Converts tweets from a Twitter archive into standalone HTML. Two implementations
 - Dev server: `cd web && npm run dev`
 - Deployed to GitHub Pages via `.github/workflows/pages.yml`
 
+## Archive formats
+Two archive layouts are supported, auto-detected at load time via `detectFormat`:
+- **Old:** `tweet.js`, `account.js`, `profile.js`, `tweet_media/`, `profile_media/` at archive root. Tweets are bare objects in the JSON array.
+- **New:** files under `data/` with plural names: `data/tweets.js`, `data/account.js`, `data/profile.js`, `data/tweets_media/`, `data/profile_media/`. Tweets are wrapped in `{"tweet": {…}}` and include `edit_info`.
+- `Archive` struct/interface carries `TweetMediaDir`/`ProfileMediaDir` so media lookup paths are resolved at load time, not hardcoded.
+
 ## Key patterns
 - `FileReader` interface abstracts zip vs directory access in both implementations
 - Twitter archive JS files have `window.YTD.*.part0 = [...]` prefix — stripped before JSON parsing
 - Entity indices are UTF-16 code unit offsets; JS strings are natively UTF-16 so indices map directly to `String.slice()`; Go requires explicit UTF-16 conversion
 - Web version uses blob URLs for in-page display, base64 data URIs for HTML export
 - CSS uses custom properties for theming in web; Go template uses conditional blocks
+
+## Releases
+- GoReleaser builds cross-platform binaries and updates Homebrew tap (`duggan/homebrew-tap`)
+- CI workflow `.github/workflows/release.yaml` triggers on `v*` tags — just `git tag` and `git push --tags`
 
 ## Commands
 ```sh
