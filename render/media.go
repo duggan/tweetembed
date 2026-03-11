@@ -18,7 +18,7 @@ type EmbeddedMedia struct {
 }
 
 // EmbedTweetMedia reads and base64-encodes all media for a tweet.
-func EmbedTweetMedia(files archive.FileReader, tweet *archive.Tweet) []EmbeddedMedia {
+func EmbedTweetMedia(a *archive.Archive, tweet *archive.Tweet) []EmbeddedMedia {
 	entities := tweet.Entities.Media
 	if tweet.ExtendedEntities != nil && len(tweet.ExtendedEntities.Media) > 0 {
 		entities = tweet.ExtendedEntities.Media
@@ -31,11 +31,11 @@ func EmbedTweetMedia(files archive.FileReader, tweet *archive.Tweet) []EmbeddedM
 		var err error
 
 		if (m.Type == "video" || m.Type == "animated_gif") && m.VideoInfo != nil {
-			data, filename, err = findVideoData(files, tweet.IDStr, m.VideoInfo)
+			data, filename, err = findVideoData(a.Files, a.TweetMediaDir, tweet.IDStr, m.VideoInfo)
 		}
 		if data == nil {
 			filename = mediaFilename(tweet.IDStr, m.MediaURLHTTPS)
-			data, err = files.ReadFile(path.Join("tweet_media", filename))
+			data, err = a.Files.ReadFile(path.Join(a.TweetMediaDir, filename))
 		}
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: media file not found: %s\n", filename)
@@ -53,15 +53,15 @@ func EmbedTweetMedia(files archive.FileReader, tweet *archive.Tweet) []EmbeddedM
 }
 
 // EmbedAvatar reads and base64-encodes the profile avatar.
-func EmbedAvatar(files archive.FileReader, avatarURL string) string {
+func EmbedAvatar(a *archive.Archive, avatarURL string) string {
 	basename := urlBasename(avatarURL)
 	if basename == "" {
 		return ""
 	}
 
-	matches, _ := files.Glob(path.Join("profile_media", "*"+basename+"*"))
+	matches, _ := a.Files.Glob(path.Join(a.ProfileMediaDir, "*"+basename+"*"))
 	if len(matches) > 0 {
-		data, err := files.ReadFile(matches[0])
+		data, err := a.Files.ReadFile(matches[0])
 		if err == nil {
 			mime := mimeFromExt(matches[0])
 			return "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(data)
@@ -72,12 +72,12 @@ func EmbedAvatar(files archive.FileReader, avatarURL string) string {
 	return ""
 }
 
-func findVideoData(files archive.FileReader, tweetID string, vi *archive.VideoInfo) ([]byte, string, error) {
+func findVideoData(files archive.FileReader, mediaDir string, tweetID string, vi *archive.VideoInfo) ([]byte, string, error) {
 	for _, v := range vi.Variants {
 		if v.ContentType == "video/mp4" {
 			basename := urlBasename(v.URL)
 			filename := tweetID + "-" + basename
-			data, err := files.ReadFile(path.Join("tweet_media", filename))
+			data, err := files.ReadFile(path.Join(mediaDir, filename))
 			if err == nil {
 				return data, filename, nil
 			}

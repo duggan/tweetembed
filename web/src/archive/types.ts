@@ -10,6 +10,8 @@ export interface Archive {
   account: Account;
   profile: Profile;
   tweetMap: Map<string, Tweet>;
+  tweetMediaDir: string;
+  profileMediaDir: string;
 }
 
 export interface Account {

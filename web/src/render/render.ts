@@ -30,8 +30,8 @@ export async function renderTweet(
   theme: string,
   logo: string,
 ): Promise<RenderResult> {
-  const media = await embedTweetMedia(archive.files, tweet);
-  const avatarURL = await embedAvatar(archive.files, archive.profile.avatarMediaUrl);
+  const media = await embedTweetMedia(archive, tweet);
+  const avatarURL = await embedAvatar(archive, archive.profile.avatarMediaUrl);
 
   const card = document.createElement("div");
   card.className = "tweet-card" + (theme === "dark" ? " dark" : "");
@@ -136,8 +136,8 @@ export async function renderTweetHTML(
   theme: string,
   logo: string,
 ): Promise<string> {
-  const rawMedia = await embedTweetMediaRaw(archive.files, tweet);
-  const rawAvatar = await embedAvatarRaw(archive.files, archive.profile.avatarMediaUrl);
+  const rawMedia = await embedTweetMediaRaw(archive, tweet);
+  const rawAvatar = await embedAvatarRaw(archive, archive.profile.avatarMediaUrl);
 
   const avatarDataURI = rawAvatar
     ? `data:${rawAvatar.mime};base64,${uint8ToBase64(rawAvatar.data)}`

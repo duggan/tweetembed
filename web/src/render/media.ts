@@ -1,4 +1,4 @@
-import type { FileReader, Tweet, MediaEntity, VideoInfo } from "../archive/types.js";
+import type { Archive, Tweet, VideoInfo } from "../archive/types.js";
 
 export interface RenderMedia {
   url: string;
@@ -7,10 +7,10 @@ export interface RenderMedia {
 
 /** Read and create blob URLs for all media in a tweet. */
 export async function embedTweetMedia(
-  files: FileReader,
+  archive: Archive,
   tweet: Tweet,
 ): Promise<RenderMedia[]> {
-  const raw = await embedTweetMediaRaw(files, tweet);
+  const raw = await embedTweetMediaRaw(archive, tweet);
   return raw.map((r) => {
     const blob = new Blob([r.data], { type: r.mime });
     return { url: URL.createObjectURL(blob), type: r.type };
@@ -25,7 +25,7 @@ export interface RawMedia {
 
 /** Read raw media bytes for all media in a tweet. */
 export async function embedTweetMediaRaw(
-  files: FileReader,
+  archive: Archive,
   tweet: Tweet,
 ): Promise<RawMedia[]> {
   const entities =
@@ -37,7 +37,7 @@ export async function embedTweetMediaRaw(
     let filename = "";
 
     if ((m.type === "video" || m.type === "animated_gif") && m.video_info) {
-      const result = await findVideoData(files, tweet.id_str, m.video_info);
+      const result = await findVideoData(archive, tweet.id_str, m.video_info);
       if (result) {
         data = result.data;
         filename = result.filename;
@@ -47,7 +47,7 @@ export async function embedTweetMediaRaw(
     if (!data) {
       filename = mediaFilename(tweet.id_str, m.media_url_https);
       try {
-        data = await files.readFile(`tweet_media/${filename}`);
+        data = await archive.files.readFile(`${archive.tweetMediaDir}/${filename}`);
       } catch {
         console.warn(`media file not found: ${filename}`);
         continue;
@@ -62,10 +62,10 @@ export async function embedTweetMediaRaw(
 
 /** Read and create a blob URL for the profile avatar. */
 export async function embedAvatar(
-  files: FileReader,
+  archive: Archive,
   avatarURL: string,
 ): Promise<string> {
-  const raw = await embedAvatarRaw(files, avatarURL);
+  const raw = await embedAvatarRaw(archive, avatarURL);
   if (!raw) return "";
   const blob = new Blob([raw.data], { type: raw.mime });
   return URL.createObjectURL(blob);
@@ -78,16 +78,16 @@ export interface RawAvatar {
 
 /** Read raw avatar bytes. */
 export async function embedAvatarRaw(
-  files: FileReader,
+  archive: Archive,
   avatarURL: string,
 ): Promise<RawAvatar | null> {
   const basename = urlBasename(avatarURL);
   if (!basename) return null;
 
-  const matches = files.glob(`profile_media/*${basename}*`);
+  const matches = archive.files.glob(`${archive.profileMediaDir}/*${basename}*`);
   if (matches.length > 0) {
     try {
-      const data = await files.readFile(matches[0]);
+      const data = await archive.files.readFile(matches[0]);
       return { data, mime: mimeFromExt(matches[0]) };
     } catch {
       // fall through
@@ -111,7 +111,7 @@ export function revokeMediaURLs(media: RenderMedia[], avatarURL: string): void {
 }
 
 async function findVideoData(
-  files: FileReader,
+  archive: Archive,
   tweetID: string,
   vi: VideoInfo,
 ): Promise<{ data: Uint8Array; filename: string } | null> {
@@ -120,7 +120,7 @@ async function findVideoData(
       const basename = urlBasename(v.url);
       const filename = `${tweetID}-${basename}`;
       try {
-        const data = await files.readFile(`tweet_media/${filename}`);
+        const data = await archive.files.readFile(`${archive.tweetMediaDir}/${filename}`);
         return { data, filename };
       } catch {
         // try next variant

@@ -15,10 +15,12 @@ type FileReader interface {
 
 // Archive holds the loaded Twitter archive data.
 type Archive struct {
-	Files    FileReader
-	Account  Account
-	Profile  Profile
-	TweetMap map[string]Tweet
+	Files           FileReader
+	Account         Account
+	Profile         Profile
+	TweetMap        map[string]Tweet
+	TweetMediaDir   string // "tweet_media" or "data/tweets_media"
+	ProfileMediaDir string // "profile_media" or "data/profile_media"
 }
 
 // ReadFile is a convenience method to read a file from the archive.
@@ -136,4 +138,10 @@ type MediaSize struct {
 	W      string `json:"w"`
 	H      string `json:"h"`
 	Resize string `json:"resize"`
+}
+
+// tweetWrapper is the outer object in the new (2026+) archive format,
+// where each array element is {"tweet": {…}} instead of a bare tweet.
+type tweetWrapper struct {
+	Tweet Tweet `json:"tweet"`
 }

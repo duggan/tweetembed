@@ -38,7 +38,7 @@ type RenderMedia struct {
 
 // RenderTweet writes a standalone HTML document for the given tweet.
 func RenderTweet(w io.Writer, a *archive.Archive, tweet *archive.Tweet, theme, logo string) error {
-	embedded := EmbedTweetMedia(a.Files, tweet)
+	embedded := EmbedTweetMedia(a, tweet)
 	media := make([]RenderMedia, len(embedded))
 	for i, m := range embedded {
 		media[i] = RenderMedia{DataURI: template.URL(m.DataURI), Type: m.Type}
@@ -47,7 +47,7 @@ func RenderTweet(w io.Writer, a *archive.Archive, tweet *archive.Tweet, theme, l
 	data := RenderData{
 		DisplayName:   a.Account.AccountDisplayName,
 		Username:      a.Account.Username,
-		AvatarDataURI: template.URL(EmbedAvatar(a.Files, a.Profile.AvatarMediaURL)),
+		AvatarDataURI: template.URL(EmbedAvatar(a, a.Profile.AvatarMediaURL)),
 		TweetHTML:     template.HTML(linkifyText(tweet)),
 		Timestamp:     formatTimestamp(tweet.CreatedAt),
 		FavoriteCount: tweet.FavoriteCount,
