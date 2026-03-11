@@ -219,7 +219,7 @@
     border-bottom: none;
   }
 
-  .search-result:hover {
+  .search-result:hover, .search-result.selected {
     background: rgba(29, 155, 240, 0.06);
   }
 
@@ -284,7 +284,7 @@
 <div id="loaded-section">
   <p id="account-info"></p>
   <div class="input-row">
-    <input type="text" id="tweet-input" placeholder="Search tweets, or enter a tweet ID/URL">
+    <input type="text" id="tweet-input" placeholder="Search tweets or browse all">
     <button id="render-btn">Render</button>
   </div>
   <div id="search-results"></div>

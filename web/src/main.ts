@@ -11,6 +11,7 @@ let currentTweetID: string | null = null;
 let currentTheme = "light";
 let currentLogo = "bird";
 let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+let selectedIndex = -1;
 
 function $(id: string): HTMLElement {
   return document.getElementById(id)!;
@@ -107,6 +108,13 @@ function init(): void {
     return parts.join(" \u00B7 ");
   }
 
+  function getAllTweets(): Tweet[] {
+    if (!archive) return [];
+    const results = Array.from(archive.tweetMap.values());
+    results.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return results.slice(0, 100);
+  }
+
   function searchTweets(query: string): Tweet[] {
     if (!archive) return [];
     const q = query.toLowerCase();
@@ -121,15 +129,17 @@ function init(): void {
     return results;
   }
 
-  function renderSearchResults(results: Tweet[]) {
+  function renderSearchResults(results: Tweet[], label?: string) {
     searchResults.innerHTML = "";
+    selectedIndex = -1;
     if (results.length === 0) {
       searchResults.style.display = "none";
       return;
     }
     const countEl = document.createElement("div");
     countEl.id = "search-results-count";
-    countEl.textContent = `${results.length}${results.length >= 100 ? "+" : ""} result${results.length !== 1 ? "s" : ""}`;
+    const count = `${results.length}${results.length >= 100 ? "+" : ""}`;
+    countEl.textContent = label ? `${count} ${label}` : `${count} result${results.length !== 1 ? "s" : ""}`;
     searchResults.appendChild(countEl);
 
     for (const tweet of results) {
@@ -167,9 +177,14 @@ function init(): void {
 
   function handleSearchInput() {
     const input = tweetInput.value.trim();
-    if (!input || looksLikeIdOrUrl(input)) {
+    if (looksLikeIdOrUrl(input)) {
       searchResults.style.display = "none";
       searchResults.innerHTML = "";
+      return;
+    }
+    if (!input) {
+      const results = getAllTweets();
+      renderSearchResults(results, `tweet${results.length !== 1 ? "s" : ""}`);
       return;
     }
     const results = searchTweets(input);
@@ -178,13 +193,53 @@ function init(): void {
 
   renderBtn.addEventListener("click", doRender);
   tweetInput.addEventListener("keydown", (e) => {
+    const items = searchResults.querySelectorAll(".search-result");
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (items.length === 0) return;
+      if (selectedIndex < items.length - 1) selectedIndex++;
+      updateSelection(items);
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (items.length === 0) return;
+      if (selectedIndex > 0) selectedIndex--;
+      updateSelection(items);
+      return;
+    }
+    if (e.key === "Escape") {
+      searchResults.style.display = "none";
+      searchResults.innerHTML = "";
+      selectedIndex = -1;
+      return;
+    }
     if (e.key === "Enter") {
+      if (selectedIndex >= 0 && selectedIndex < items.length) {
+        (items[selectedIndex] as HTMLElement).click();
+        return;
+      }
       if (looksLikeIdOrUrl(tweetInput.value.trim())) {
         doRender();
       } else {
-        // Trigger immediate search on Enter for non-ID input
         handleSearchInput();
       }
+    }
+  });
+
+  function updateSelection(items: NodeListOf<Element>) {
+    items.forEach((el, i) => {
+      el.classList.toggle("selected", i === selectedIndex);
+    });
+    if (selectedIndex >= 0) {
+      items[selectedIndex].scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  tweetInput.addEventListener("focus", () => {
+    if (!tweetInput.value.trim() && archive) {
+      handleSearchInput();
     }
   });
   tweetInput.addEventListener("input", () => {
