@@ -1,40 +1,48 @@
-import JSZip from "jszip";
+import { unzip } from "unzipit";
 import type { FileReader } from "./types.js";
 
+interface ZipEntry {
+  name: string;
+  isDirectory: boolean;
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
+
 /**
- * ZipReader reads archive files from a zip file using JSZip.
+ * ZipReader reads archive files from a zip file using unzipit.
  * Individual entries are decompressed on demand.
  */
 export class ZipReader implements FileReader {
-  private zip: JSZip;
   private prefix: string;
-  private index: Map<string, JSZip.JSZipObject>;
+  private index: Map<string, ZipEntry>;
 
   private constructor(
-    zip: JSZip,
     prefix: string,
-    index: Map<string, JSZip.JSZipObject>,
+    index: Map<string, ZipEntry>,
   ) {
-    this.zip = zip;
     this.prefix = prefix;
     this.index = index;
   }
 
   static async fromFile(file: File | Blob | ArrayBuffer): Promise<ZipReader> {
-    const zip = await JSZip.loadAsync(file);
+    const buf = file instanceof ArrayBuffer
+      ? file
+      : await (file as Blob).arrayBuffer();
 
-    const prefix = detectPrefix(zip);
+    const { entries } = await unzip(buf);
 
-    const index = new Map<string, JSZip.JSZipObject>();
-    zip.forEach((relativePath, entry) => {
-      if (entry.dir) return;
-      const name = relativePath.startsWith(prefix)
-        ? relativePath.slice(prefix.length)
-        : relativePath;
+    const allPaths = Object.keys(entries);
+    const prefix = detectPrefix(allPaths, entries);
+
+    const index = new Map<string, ZipEntry>();
+    for (const [path, entry] of Object.entries(entries)) {
+      if (entry.isDirectory) continue;
+      const name = path.startsWith(prefix)
+        ? path.slice(prefix.length)
+        : path;
       index.set(normalizePath(name), entry);
-    });
+    }
 
-    return new ZipReader(zip, prefix, index);
+    return new ZipReader(prefix, index);
   }
 
   async readFile(name: string): Promise<Uint8Array> {
@@ -43,7 +51,8 @@ export class ZipReader implements FileReader {
     if (!entry) {
       throw new Error(`file not found in zip: ${name}`);
     }
-    return entry.async("uint8array");
+    const buf = await entry.arrayBuffer();
+    return new Uint8Array(buf);
   }
 
   glob(pattern: string): string[] {
@@ -62,25 +71,28 @@ export class ZipReader implements FileReader {
   }
 }
 
-/** Detect the common directory prefix shared by all files in the zip. */
-function detectPrefix(zip: JSZip): string {
+/** Detect the common directory prefix shared by all file paths. */
+function detectPrefix(
+  paths: string[],
+  entries: Record<string, ZipEntry>,
+): string {
   let prefix = "";
-  let first = true;
+  let foundFirst = false;
 
-  zip.forEach((relativePath, entry) => {
-    if (entry.dir) return;
-    if (first) {
-      const idx = relativePath.indexOf("/");
+  for (const p of paths) {
+    if (entries[p].isDirectory) continue;
+    if (!foundFirst) {
+      const idx = p.indexOf("/");
       if (idx >= 0) {
-        prefix = relativePath.slice(0, idx + 1);
+        prefix = p.slice(0, idx + 1);
       }
-      first = false;
-      return;
+      foundFirst = true;
+      continue;
     }
-    if (prefix && !relativePath.startsWith(prefix)) {
-      prefix = "";
+    if (prefix && !p.startsWith(prefix)) {
+      return "";
     }
-  });
+  }
 
   return prefix;
 }

@@ -13,8 +13,8 @@ Converts tweets from a Twitter archive into standalone HTML. Two implementations
 - Releases via GoReleaser (see `.goreleaser.yaml`)
 
 ## Web app (`web/`)
-- TypeScript SPA, vanilla DOM (no framework), single runtime dependency: JSZip
-- `web/src/archive/` — mirrors Go `archive/` package; `ZipReader` wraps JSZip
+- TypeScript SPA, vanilla DOM (no framework), single runtime dependency: unzipit
+- `web/src/archive/` — mirrors Go `archive/` package; `ZipReader` wraps unzipit
 - `web/src/render/` — DOM-based rendering + `renderTweetHTML` for self-contained HTML export
 - `web/src/input/` — same URL parsing logic as Go
 - Build: `cd web && npm run build` (esbuild → `dist/app.js`)
