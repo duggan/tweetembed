@@ -261,9 +261,63 @@
     text-align: center;
     margin-bottom: 12px;
   }
+
+  #github-link {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    color: #536471;
+    transition: color 0.2s;
+  }
+
+  #github-link svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #github-link:hover {
+    color: #0f1419;
+  }
+
+  body.dark #github-link {
+    color: #8b98a5;
+  }
+
+  body.dark #github-link:hover {
+    color: #e7e9ea;
+  }
+
+  .guide-link {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #536471;
+    text-align: center;
+  }
+
+  body.dark .guide-link {
+    color: #8b98a5;
+  }
+
+  .guide-link a {
+    color: #1d9bf0;
+    text-decoration: none;
+  }
+
+  .guide-link a:hover {
+    text-decoration: underline;
+  }
 </style>
 </head>
 <body>
+
+<a id="github-link" href="https://github.com/duggan/tweetembed" target="_blank" rel="noopener" aria-label="View source on GitHub">
+  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+  </svg>
+</a>
 
 <h1>tweetembed</h1>
 <p class="subtitle">Render tweets from your Twitter archive, entirely in-browser.</p>
@@ -274,6 +328,10 @@
     <span class="hint">Works offline. Nothing is uploaded.</span>
   </div>
   <input type="file" id="file-input" accept=".zip">
+  <p class="guide-link">
+    Don't have your archive yet?
+    <a href="https://www.tweetarchivist.com/download-twitter-archive-complete-guide" target="_blank" rel="noopener">How to download your Twitter archive</a>.
+  </p>
 </div>
 
 <div id="loading-section">
